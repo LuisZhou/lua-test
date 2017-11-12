@@ -1,7 +1,7 @@
 -- Pattern Matching
 
 local function printSeperate()
-  print('---------------------------------------------------------------------------------------------------------')
+  print('-------------------------------------------------------')
 end
 
 print('')
@@ -11,11 +11,12 @@ print('')
 -- it returns two values: the index where the match begins and the index where the match ends. 
 -- If it does not find a match, it returns nil.
 -- scene: find the postion of paint string or pattern. But this just return the first found.
-s = "hello world"
-i, j = string.find(s, "hello")
-print('the return of string.find for searching hello in "hello world" is:', i, j)  -- 1  5
-assert(string.sub(s, i, j) == 'hello')
--- print(string.find(s, "world")) --> 1 5
+do
+  local s = "hello world"
+  local i, j = string.find(s, "hello")
+  print('the return of string.find for searching hello in "hello world" is:', i, j)  -- 1  5
+  assert(string.sub(s, i, j) == 'hello')
+-- print(string.find(s, "world")) --> 7 11
 -- print(string.find(s, "l"))     --> 3 3 only find the first one.
 -- print(string.find(s, "lll"))   -- nil
 
@@ -29,50 +30,57 @@ assert(string.sub(s, i, j) == 'hello')
 -- stdin:1: malformed pattern (missing ']')
 -- print(string.find("a [word]", "[", 1, true))--> 3 3
 
+end
 
 printSeperate()
 
+do
 -- The function string.match
 -- searches for a pattern inside a given subject string. (subject string: plain string or pattern)
 -- instead of returning the positions where it found the pattern, it returns the part of the subject string that matched the pattern
-print('the return of string.match for searching hello in "hello world" is:', string.match("hello world", "hello")) --> hello
--- pattern search in string.match 
--- scene: I don't know what the subject string is, but I know what format it has.
-date = "Today is 17/7/1990"
-d = string.match(date, "%d+/%d+/%d+")
-print('the return of d = string.match("Today is 17/7/1990", "%d+/%d+/%d+"):', d) --> 17/7/1990
+  print('the return of string.match for searching hello in "hello world" is:', string.match("hello world", "hello")) --> hello
+  local date = "Today is 17/7/1990"
+  local d = string.match(date, "%d+/%d+/%d+")
+  print('the return of d = string.match("Today is 17/7/1990", "%d+/%d+/%d+"):', d) --> 17/7/1990
+end
 
 printSeperate()
 
+do
 -- The function string.gsub
 -- Its basic use is to substitute the replacement string for all occurrences of the pattern inside the subject string.
 -- the fouth parameter is optional: limit the number of substitutions.
 -- the third can be function or table.
-s = string.gsub("Lua is cute", "cute", "great")
-print('string.gsub("Lua is cute", "cute", "great"):', s)
-s, times = string.gsub('all lii', 'l', 'x')
-print("s = string.gsub('all lii', 'l', 'x'):", s, times) -- return the number of substitutions.
-s = string.gsub('Lua is great', 'Sol', 'Sun')
-print("string.gsub('Lua is great', 'Sol', 'Sun'):", s)  -- do nothing example.
+  local times
+  local s = string.gsub("Lua is cute", "cute", "great")
+  print('string.gsub("Lua is cute", "cute", "great"):', s)
+  s, times = string.gsub('all lii', 'l', 'x')
+  print("s = string.gsub('all lii', 'l', 'x'):", s, times) -- return the number of substitutions.
+  s = string.gsub('Lua is great', 'Sol', 'Sun')
+  print("string.gsub('Lua is great', 'Sol', 'Sun'):", s)  -- do nothing example.
+end
 
 printSeperate()
 
+do
 -- The function string.gmatch
 -- The function string.gmatch returns a function that iterates over all occurrences of a pattern in a string.
-s = "some string"
-words = {}
-for w in string.gmatch(s, "%a+") do
-  words[#words + 1] = w
+  local s = "some string"
+  local words = {}
+  for w in string.gmatch(s, "%a+") do
+    words[#words + 1] = w
+  end
+  print("test the base function of the gmatch:", words[1], words[2])
 end
-print("test the base function of the gmatch:", words[1], words[2])
 
 printSeperate()
 
+do
 -- Patterns
 -- In general, any escaped alphanumeric character has some special meaning (e.g., '%a' matches any letter), 
 -- while any escaped non-alphanumeric character represents itself (e.g., '%.' matches a dot)
-s = "Deadline is 30/05/1999, firm"
-date = "%d%d/%d%d/%d%d%d%d"
+-- local s = "Deadline is 30/05/1999, firm"
+-- local date = "%d%d/%d%d/%d%d%d%d"
 -- print(string.match(s, date)) --> 30/05/1999
 
 -- .  all characters
@@ -87,7 +95,7 @@ date = "%d%d/%d%d/%d%d%d%d"
 -- %w alphanumeric characters
 -- %x hexadecimal digits
 -- An upper-case version of any of these classes represents the complement of the class.
-print('Upper-case version of theses class represents the complement of the class', (string.gsub("hello, up-down!", "%A", "."))) --> hello..up.down. 
+  print('Upper-case version of theses class represents the complement of the class', (string.gsub("hello, up-down!", "%A", "."))) --> hello..up.down. 
 -- (When printing the results of gsub, I am using extra parentheses to discard its second result, which is the number of substitutions.)
 
 -- different between letter and alphanumeric characters, alphanumeric characters include letter and number.
@@ -119,9 +127,11 @@ print('Upper-case version of theses class represents the complement of the class
 -- We can use these marks both to restrict the matches that we find and to anchor patterns.
 
 -- We can escape not only the magic characters, but also any non-alphanumeric character
+end
 
 printSeperate()
 
+do 
 -- char-set: define your own class of character.
 -- example: [%w_], [%[%]]
 -- complement '[^0-7]' '[^\n]'
@@ -129,55 +139,59 @@ printSeperate()
 -- example: '[_%a][_%w]*'
 -- difference: '[_%a][_%w]*', '[_%a][_%w]-', the latter, return as soon as it find one, the before, find as much as possible.
 -- * and - : However, instead of matching the longest sequence, it matches the shortest one
-local ret = string.match('_variate', '[_%a][_%w]-')
-print("result of string.match('_variate', '[_%a][_%w]-')", ret)
-ret = string.match('_variate%', '[_%a][_%w]-%%') -- careful: match the whole pattern.
-print("result of string.match('_variate%', '[_%a][_%w]-%%')", ret)
+  local ret = string.match('_variate', '[_%a][_%w]-')
+  print("result of string.match('_variate', '[_%a][_%w]-')", ret)
+  ret = string.match('_variate%', '[_%a][_%w]-%%') -- careful: match the whole pattern.
+  print("result of string.match('_variate%', '[_%a][_%w]-%%')", ret)
 -- wow!
-ret = 'int x; /* x */ int y; /* y */'
-print('the result of string.gsub(ret, "/%*.*%*/", "")', (string.gsub(ret, "/%*.*%*/", "")))
-print('the result of string.gsub(ret, "/%*.-%*/", "")', (string.gsub(ret, "/%*.-%*/", "")))
-
--- '[+-]?%d+'
+  ret = 'int x; /* x */ int y; /* y */'
+  print('the result of string.gsub(ret, "/%*.*%*/", "")', (string.gsub(ret, "/%*.*%*/", "")))
+  print('the result of string.gsub(ret, "/%*.-%*/", "")', (string.gsub(ret, "/%*.-%*/", "")))
+-- '[+-]?%d+'  
+end
 
 printSeperate()
 
 -- in Lua we can apply a modifier only to a character class; there is no way to
 -- group patterns under a modifier.
 
-for _, v in pairs( { "+1", "-2", "abc", "1" } ) do 
-  print(v, 'test "^[+-]?%d+$", result is', string.find(v, "^[+-]?%d+$"))
-end
-
-for _, v in pairs( { "a+1b", "a+1b 1" --[[ this not match either. ]], "-2", "abc", "a1b" } ) do 
-  print(v, 'test "^a[+-]?%d+b$", result is', string.find(v, "^a[+-]?%d+b$"))
-end
-
-for _, v in pairs( { "a+1b", "a+1b 1" --[[ this not match either. ]], "-2", "abc", "a1b" } ) do 
-  print(v, 'test "a[+-]?%d+b", result is', string.find(v, "a[+-]?%d+b"))
-end
-
+do
+  for _, v in pairs( { "+1", "-2", "abc", "1" } ) do 
+    print(v, 'test "^[+-]?%d+$", result is', string.find(v, "^[+-]?%d+$"))
+  end
+  for _, v in pairs( { "a+1b", "a+1b 1" --[[ this not match either. ]], "-2", "abc", "a1b" } ) do 
+    print(v, 'test "^a[+-]?%d+b$", result is', string.find(v, "^a[+-]?%d+b$"))
+  end
+  for _, v in pairs( { "a+1b", "a+1b 1" --[[ this not match either. ]], "-2", "abc", "a1b" } ) do 
+    print(v, 'test "a[+-]?%d+b", result is', string.find(v, "a[+-]?%d+b"))
+  end
 --The caret and dollar signs are magic only when used in the beginning or end of the pattern. Otherwise,
 --they act as regular characters matching themselves.
+end
 
 printSeperate()
 
+do
+-- we can think it as a stash.
 -- Typically, we use this pattern as '%b()', '%b[]', '%b{}', or '%b<>', but we can use any two distinct char-
 -- acters as delimiters.
-s = "a (enclosed (in) parentheses) line"
-print((string.gsub(s, "%b()", ""))) --> a line
+  local s = "a (enclosed (in) parentheses) line"
+  print((string.gsub(s, "%b()", "1"))) --> a 1 line
+end
 
 printSeperate()
 
+do
 -- the item '%f[char-set]' represents a frontier pattern. It matches an empty string only if the
 -- next character is in char-set but the previous one is not
 
 -- The frontier pattern treats the positions before the first and after the last characters in the subject string as
 -- if they had the null character (ASCII code zero).
 
-print('frontier pattern: It matches an empty string only if the next character is in char-set but the previous one is not')
-s = "the anthem is the the"
-print('string.gsub("the anthem is the the", "%f[%w]the%f[%W]", "one"): ', (string.gsub(s, "%f[%w]the%f[%W]", "one"))) --> one anthem is one theme
+  print('frontier pattern: It matches an empty string only if the next character is in char-set but the previous one is not')
+  local s = "the anthem is the the"
+  print('string.gsub("the anthem is the the", "%f[%w]the%f[%W]", "one"): ', (string.gsub(s, "%f[%w]the%f[%W]", "one"))) --> one anthem is one one
+end
 
 printSeperate()
 
