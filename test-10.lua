@@ -122,39 +122,46 @@ do
   assert((string.gsub(ret, "/%*.-%*/", "")) == 'int x;  int y; ')  
 end
 
-printSeperate()
-
 -- in Lua we can apply a modifier only to a character class; there is no way to
 -- group patterns under a modifier.
 
 do
-  -- '[+-]?%d+'  
+  --   
   --The caret and dollar signs are magic only when used in the beginning or end of the pattern. Otherwise,
   --they act as regular characters matching themselves.  
   
-  for _, v in pairs( { "+1", "-2", "abc", "1" } ) do 
-    print(v, 'test "^[+-]?%d+$", result is', string.find(v, "^[+-]?%d+$"))
-  end
-  for _, v in pairs( { "a+1b", "a+1b 1" --[[ this not match either. ]], "-2", "abc", "a1b" } ) do 
-    print(v, 'test "^a[+-]?%d+b$", result is', string.find(v, "^a[+-]?%d+b$"))
-  end
-  for _, v in pairs( { "a+1b", "a+1b 1" --[[ this not match either. ]], "-2", "abc", "a1b" } ) do 
-    print(v, 'test "a[+-]?%d+b", result is', string.find(v, "a[+-]?%d+b"))
-  end
+  local pattern 
+  
+  pattern = '^[+-]?%d+$'  
+  assert(string.match('+1', pattern) == '+1')
+  assert(string.match('-2', pattern) == '-2')
+  assert(string.match('abc', pattern) == nil)
+  assert(string.match('1', pattern) == '1')
+  
+  pattern = '^a[+-]?%d+b$'
+  assert(string.match('a+1b', pattern) == 'a+1b')
+  assert(string.match('a+1b 1', pattern) == nil)
+  assert(string.match('-2', pattern) == nil)
+  assert(string.match('abc', pattern) == nil)
+  assert(string.match('a1b', pattern) == 'a1b')
 
+  pattern = 'a[+-]?%d+b'
+  assert(string.match('a+1b', pattern) == 'a+1b')
+  assert(string.match('a+1b 1', pattern) == 'a+1b')
+  assert(string.match('-2', pattern) == nil)
+  assert(string.match('abc', pattern) == nil)
+  assert(string.match('a1b2', pattern) == 'a1b')  
 end
-
-printSeperate()
 
 do
 -- we can think it as a stash.
 -- Typically, we use this pattern as '%b()', '%b[]', '%b{}', or '%b<>', but we can use any two distinct char-
 -- acters as delimiters.
-  local s = "a (enclosed (in) parentheses) line"
-  print((string.gsub(s, "%b()", "1"))) --> a 1 line
-end
 
-printSeperate()
+-- %b(.) make no sense.
+  local s = "a (enclosed (in) parentheses) line"
+  assert((string.gsub(s, "%b()", "1")) == 'a 1 line')
+end
 
 do
 -- the item '%f[char-set]' represents a frontier pattern. It matches an empty string only if the
@@ -163,12 +170,9 @@ do
 -- The frontier pattern treats the positions before the first and after the last characters in the subject string as
 -- if they had the null character (ASCII code zero).
 
-  print('frontier pattern: It matches an empty string only if the next character is in char-set but the previous one is not')
   local s = "the anthem is the the"
-  print('string.gsub("the anthem is the the", "%f[%w]the%f[%W]", "one"): ', (string.gsub(s, "%f[%w]the%f[%W]", "one"))) --> one anthem is one one
+  assert((string.gsub(s, "%f[%w]the%f[%W]", "one")) == 'one anthem is one one')
 end
-
-printSeperate()
 
 -- Captures
 
