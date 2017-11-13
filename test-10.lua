@@ -6,24 +6,14 @@ end
 
 print('')
 
--- The function string.find
--- searches for a pattern inside a given subject string. (subject string: plain string or pattern)
--- it returns two values: the index where the match begins and the index where the match ends. 
--- If it does not find a match, it returns nil.
--- scene: find the postion of paint string or pattern. But this just return the first found.
+-- string.find
 do
   local s = "hello world"
-  local i, j = string.find(s, "hello")
-  print('the return of string.find for searching hello in "hello world" is:', i, j)  -- 1  5
-  assert(string.sub(s, i, j) == 'hello')
+  local i, j = string.find(s, "hello") -- 1  5
+
 -- print(string.find(s, "world")) --> 7 11
 -- print(string.find(s, "l"))     --> 3 3 only find the first one.
 -- print(string.find(s, "lll"))   -- nil
-
--- parameter:
--- The third parameter is an index that tells where in the subject string to start the search. 
--- The fourth parameter, a Boolean, indicates a plain search. A plain search, as the name implies, 
--- does a plain “find substring” search in the subject, ignoring patterns
 
 -- '[' is start of the pattern
 -- string.find("a [word]", "[")
@@ -32,53 +22,39 @@ do
 
 end
 
-printSeperate()
-
 do
--- The function string.match
--- searches for a pattern inside a given subject string. (subject string: plain string or pattern)
--- instead of returning the positions where it found the pattern, it returns the part of the subject string that matched the pattern
-  print('the return of string.match for searching hello in "hello world" is:', string.match("hello world", "hello")) --> hello
+  -- string.match("hello world", "hello") --> hello  
   local date = "Today is 17/7/1990"
   local d = string.match(date, "%d+/%d+/%d+")
-  print('the return of d = string.match("Today is 17/7/1990", "%d+/%d+/%d+"):', d) --> 17/7/1990
+  assert(d == '17/7/1990')
 end
 
-printSeperate()
-
 do
--- The function string.gsub
--- Its basic use is to substitute the replacement string for all occurrences of the pattern inside the subject string.
--- the fouth parameter is optional: limit the number of substitutions.
--- the third can be function or table.
   local times
   local s = string.gsub("Lua is cute", "cute", "great")
-  print('string.gsub("Lua is cute", "cute", "great"):', s)
+  assert(s == "Lua is great")
+
   s, times = string.gsub('all lii', 'l', 'x')
-  print("s = string.gsub('all lii', 'l', 'x'):", s, times) -- return the number of substitutions.
-  s = string.gsub('Lua is great', 'Sol', 'Sun')
-  print("string.gsub('Lua is great', 'Sol', 'Sun'):", s)  -- do nothing example.
+  assert(s == 'axx xii' and times == 3)
+
+  s, times = string.gsub('Lua is great', 'Sol', 'Sun')
+  assert(s == 'Lua is great' and times == 0)
 end
 
-printSeperate()
-
 do
--- The function string.gmatch
--- The function string.gmatch returns a function that iterates over all occurrences of a pattern in a string.
   local s = "some string"
   local words = {}
   for w in string.gmatch(s, "%a+") do
     words[#words + 1] = w
   end
-  print("test the base function of the gmatch:", words[1], words[2])
+  assert(words[1] == 'some' and words[2] == 'string')
 end
-
-printSeperate()
 
 do
 -- Patterns
 -- In general, any escaped alphanumeric character has some special meaning (e.g., '%a' matches any letter), 
 -- while any escaped non-alphanumeric character represents itself (e.g., '%.' matches a dot)
+
 -- local s = "Deadline is 30/05/1999, firm"
 -- local date = "%d%d/%d%d/%d%d%d%d"
 -- print(string.match(s, date)) --> 30/05/1999
@@ -95,17 +71,15 @@ do
 -- %w alphanumeric characters
 -- %x hexadecimal digits
 -- An upper-case version of any of these classes represents the complement of the class.
-  print('Upper-case version of theses class represents the complement of the class', (string.gsub("hello, up-down!", "%A", "."))) --> hello..up.down. 
--- (When printing the results of gsub, I am using extra parentheses to discard its second result, which is the number of substitutions.)
 
--- different between letter and alphanumeric characters, alphanumeric characters include letter and number.
---for w in string.gmatch("Hello123, world", "%a+") do 
---  print(w)
---end  
--- . match all, include control characters.
---for w in string.gmatch("Hello123\n, world", ".+") do 
---  print('found', w)
---end  
+  -- (When printing the results of gsub, I am using extra parentheses to discard its second result, 
+  -- which is the number of substitutions.)
+  assert((string.gsub("hello, up-down!", "%A", ".")) == 'hello..up.down.')
+
+  -- different between letter and alphanumeric characters, alphanumeric characters include letter and number.
+  assert(string.match("Hello123, world", "%a+") == 'Hello')
+  assert(string.match("Hello123, world", "%w+") == 'Hello123')
+  assert(string.match("Hello123\n\1, world", ".+") == 'Hello123\n\1, world') -- . match all, include control characters.
 
 -- magic characters
 -- ( ) . % + - * ? [ ] ^ $
@@ -129,7 +103,6 @@ do
 -- We can escape not only the magic characters, but also any non-alphanumeric character
 end
 
-printSeperate()
 
 do 
 -- char-set: define your own class of character.
@@ -139,15 +112,14 @@ do
 -- example: '[_%a][_%w]*'
 -- difference: '[_%a][_%w]*', '[_%a][_%w]-', the latter, return as soon as it find one, the before, find as much as possible.
 -- * and - : However, instead of matching the longest sequence, it matches the shortest one
-  local ret = string.match('_variate', '[_%a][_%w]-')
-  print("result of string.match('_variate', '[_%a][_%w]-')", ret)
-  ret = string.match('_variate%', '[_%a][_%w]-%%') -- careful: match the whole pattern.
-  print("result of string.match('_variate%', '[_%a][_%w]-%%')", ret)
--- wow!
+  
+  assert(string.match('_variate', '[_%a][_%w]-') == '_')
+  assert(string.match('_variate%', '[_%a][_%w]-%%') == '_variate%')
+  assert(string.match('_variate%', '[_%a][_%w]-%%') == '_variate%')
+  -- wow!
   ret = 'int x; /* x */ int y; /* y */'
-  print('the result of string.gsub(ret, "/%*.*%*/", "")', (string.gsub(ret, "/%*.*%*/", "")))
-  print('the result of string.gsub(ret, "/%*.-%*/", "")', (string.gsub(ret, "/%*.-%*/", "")))
--- '[+-]?%d+'  
+  assert((string.gsub(ret, "/%*.*%*/", "")) == 'int x; ')
+  assert((string.gsub(ret, "/%*.-%*/", "")) == 'int x;  int y; ')  
 end
 
 printSeperate()
@@ -156,6 +128,10 @@ printSeperate()
 -- group patterns under a modifier.
 
 do
+  -- '[+-]?%d+'  
+  --The caret and dollar signs are magic only when used in the beginning or end of the pattern. Otherwise,
+  --they act as regular characters matching themselves.  
+  
   for _, v in pairs( { "+1", "-2", "abc", "1" } ) do 
     print(v, 'test "^[+-]?%d+$", result is', string.find(v, "^[+-]?%d+$"))
   end
@@ -165,8 +141,7 @@ do
   for _, v in pairs( { "a+1b", "a+1b 1" --[[ this not match either. ]], "-2", "abc", "a1b" } ) do 
     print(v, 'test "a[+-]?%d+b", result is', string.find(v, "a[+-]?%d+b"))
   end
---The caret and dollar signs are magic only when used in the beginning or end of the pattern. Otherwise,
---they act as regular characters matching themselves.
+
 end
 
 printSeperate()
