@@ -197,6 +197,7 @@ printSeperate()
 
 -- Captures
 
+do
 -- The capture mechanism allows a pattern to yank parts of the subject string that match parts of the pattern for further use.
 
 --For instance, there is no pattern that matches an optional word (unless
@@ -226,13 +227,19 @@ printSeperate()
 --s = "a = [=[[[ something ]] ]==] ]=]; print(a)"
 --print(string.match(s, p)) --> =[[ something ]] ]==]
 
+-- %n can use in pattern and replace string.
+
 -- two capture in the gsub.
-s = [[then he said: "it's all right, 'why?' "!]]
-result = string.gsub(s, "([\"'])(.-)%1", function(x, y) 
-    print('abc', x, y)
-    return 'efg', 'abc' -- why will apply the second.
-  end)
-print(result) --> then he said: efg!
+  s = [[then he said: "it's all right, 'why?' "!]]
+  result = string.gsub(s, "([\"'])(.-)%1", function(x, y) 
+      print(x, y)
+      return 'efg', 'abc' -- why will apply the second.
+    end)
+  print(result) --> then he said: efg!
+end
+
+
+printSeperate()
 
 -- the item "%0" becomes the whole match
 -- print((string.gsub("hello Lua!", "%a", "%0-%0"))) --> h-he-el-ll-lo-o L-Lu-ua-a!
@@ -240,25 +247,39 @@ print(result) --> then he said: efg!
 -- one loop
 -- print((string.gsub("hello Lua", "(.)(.)", "%2%1"))) --> ehll ouLa
 
+do
 -- disallow nested command
-s = [[the \quote{task} is to \em{change} that.]]
-s = string.gsub(s, "\\(%a+){(.-)}", "<%1>%2</%1>")
-print(s) --> the <quote>task</quote> is to <em>change</em> that.
+  local s = [[the \quote{task} is to \em{change} that.]]
+  s = string.gsub(s, "\\(%a+){(.-)}", "<%1>%2</%1>")
+  print(s) --> the <quote>task</quote> is to <em>change</em> that.
 
+  -- it also a one loop search.
+  s = [[the \quote{task \em{change} } is to  that.]]
+  s = string.gsub(s, "\\(%a+)(%b{})", "<%1>%2</%1>")  
+  print(s) --the <quote>{task \em{change} }</quote> is to  that.
+end
+
+printSeperate()
+
+do
 -- trim means only remove the begin and ending space for the target string.
-function trim (s)
-  s = string.gsub(s, "^%s*(.-)%s*$", "-%1-")
+  function trim (s)
+    s = string.gsub(s, "^%s*(.-)%s*$", "-%1-")
 --s = string.gsub(s, "%s+(.-)%s", "-%1-")  -- careful, not ending %s+, because the one loop search.
-  return s
+    return s
+  end
+
+  print(trim ("what is't  the matter"))
+  print(trim (" the efg "))
 end
 
-print(trim ("what is't  the matter"))
-print(trim (" the efg "))
+printSeperate()
 
+do
 -- replacement, must use the catch
-function expand (s,t)
-  return (string.gsub(s, "$(%w+)", t))
-end
+  function expand (s,t)
+    return (string.gsub(s, "$(%w+)", t))
+  end
 
 --func version
 --function expand (s)
@@ -267,54 +288,60 @@ end
 --      end))
 --end
 
-local t = {name = "Lua"; status = "great"}
-print(expand("$name is $status, isn't it?", t))
-
-
-function toxml (s)
-  s = string.gsub(s, "\\(%a+)(%b{})", function (tag, body)
-      body = string.sub(body, 2, -2) -- remove the brackets
-      body = toxml(body)
-      -- handle nested commands
-      return string.format("<%s>%s</%s>", tag, body, tag)
-    end)
-  return s
+  local t = {name = "Lua"; status = "great"}
+  print(expand("$name is $status, isn't it?", t))
 end
-print(toxml("\\title{The \\bold{big} example}")) --> <title>The <bold>big</bold> example</title>
 
 printSeperate()
 
-origin = "a+b = c"
-
-function escape (s)
-  s = string.gsub(s, "([=+])", function (h)
-      return string.format('%%%02X', string.byte(h))
-    end)
-  s = string.gsub(s, " ", "+")
-  return s
+do
+  function toxml (s)
+    s = string.gsub(s, "\\(%a+)(%b{})", function (tag, body)
+        body = string.sub(body, 2, -2) -- remove the brackets
+        body = toxml(body)
+        -- handle nested commands
+        return string.format("<%s>%s</%s>", tag, body, tag)
+      end)
+    return s
+  end
+  print(toxml("\\title{The \\bold{big} example}")) --> <title>The <bold>big</bold> example</title>
 end
 
-local intermedia = escape(origin)
-assert ("a%2Bb+%3D+c" == intermedia)
-print(intermedia)
+printSeperate()
 
-function unescape (s)
-  s = string.gsub(s, "+", " ")
-  s = string.gsub(s, "%%(%x%x)", function (h)
-      return string.char(tonumber(h, 16))
-    end)
-  return s
-end
+do
+  local origin = "a+b = c"
+  function escape (s)
+    s = string.gsub(s, "([=+])", function (h)
+        return string.format('%%%02X', string.byte(h)) -- must escape, because the % has specail meaning in the format.
+      end)
+    s = string.gsub(s, " ", "+")
+    return s
+  end
 
-assert (origin == unescape(intermedia))
-print(unescape("a%2Bb+%3D+c")) --> a+b = c
+  local intermedia = escape(origin)
+  assert ("a%2Bb+%3D+c" == intermedia)
+  print(intermedia)
+
+  function unescape (s)
+    s = string.gsub(s, "+", " ")
+    s = string.gsub(s, "%%(%x%x)", function (h)
+        return string.char(tonumber(h, 16))
+      end)
+    return s
+  end
+
+  assert (origin == unescape(intermedia))
+  print(unescape("a%2Bb+%3D+c")) --> a+b = c
 
 -- %2B --> +
 -- + -> space
 -- %3D --> =
-
-
 -- ^&=  --> end with what?
+
+end
+
+printSeperate()
 
 do
   cgi = {}
@@ -335,6 +362,7 @@ end
 
 printSeperate()
 
+do
 -- Tab expansion
 
 -- second capture is after the match
@@ -346,56 +374,61 @@ printSeperate()
 -- so (p - 1) + corr is total number of characters after before replacement.
 
 -- corr is the addiction number of space expand by tab, (addition means remove the old tab one.)
-function expandTabs (s, tab)
-  tab = tab or 8 -- tab "size" (default is 8)
-  local corr = 0 -- correction
-  s = string.gsub(s, "()\t", function (p)      
-      local sp = tab - (p - 1 + corr)%tab -- tab meaning is every 8 a group.
-      corr = corr - 1 + sp -- remove 1(\t), sp is now      
-      return string.rep(" ", sp)
-    end)
-  return s
-end
+  function expandTabs (s, tab)
+    tab = tab or 8 -- tab "size" (default is 8)
+    local corr = 0 -- correction
+    s = string.gsub(s, "()\t", function (p)      
+        local sp = tab - (p - 1 + corr)%tab -- tab meaning is every 8 a group.
+        corr = corr - 1 + sp -- remove 1(\t), sp is now      
+        return string.rep(" ", sp)
+      end)
+    return s
+  end
 
-function myExpandTabs (s, tab)
-  tab = tab or 8 -- tab "size" (default is 8)
-  local counter = 0 -- correction
-  local spaces = 0 
-  s = string.gsub(s, "()\t", function (p)     
-      local sp = tab - (p - 1 -counter + spaces)%tab
-      counter = counter + 1
-      spaces = spaces + sp
-      return string.rep(" ", sp)
-    end)
-  return s
-end
+  function myExpandTabs (s, tab)
+    tab = tab or 8 -- tab "size" (default is 8)
+    local counter = 0 -- correction
+    local spaces = 0 
+    s = string.gsub(s, "()\t", function (p)     
+        local sp = tab - (p - 1 -counter + spaces)%tab
+        counter = counter + 1
+        spaces = spaces + sp
+        return string.rep(" ", sp)
+      end)
+    return s
+  end
 
-print("book version:")
-print(expandTabs("\t123\tabc"))
-print("my version:")
-print(myExpandTabs("\t1234\tabc"))
+  print("book version:")
+  print(expandTabs("\t123\tabc"))
+  print("my version:")
+  print(myExpandTabs("\t1234\tabc"))
 
-printSeperate()
+
 
 -- at every eighth character, we insert a mark in the string. Then, wherever the mark is preceded by spaces, we
 -- replace the sequence spaces–mark by a tab
-function unexpandTabs (s, tab)
-  tab = tab or 8
-  s = expandTabs(s, tab)
-  local pat = string.rep(".", tab)  -- every 8 char is a group
-  s = string.gsub(s, pat, "%0\1")   -- insert \1 every 8 char
-  s = string.gsub(s, " +\1", "\t")  -- replace space+\1 to \t. only places which have space replaced by tab.
-  s = string.gsub(s, "\1", "")      -- remove \1
-  return s
-end
+  function unexpandTabs (s, tab)
+    tab = tab or 8
+    s = expandTabs(s, tab)
+    local pat = string.rep(".", tab)  -- every 8 char is a group
+    s = string.gsub(s, pat, "%0\1")   -- insert \1 every 8 char
+    s = string.gsub(s, "%s+\1", "\t")  -- replace space+\1 to \t. only places which have space replaced by tab.
+    s = string.gsub(s, "\1", "")      -- remove \1
+    return s
+  end
 
 -- use the for, search every 8 char. remove the space and head(only all space) and tail.
 -- so bad!
 
-print(unexpandTabs("        abc     abc"))
+  print("expand:")
+
+  print(unexpandTabs("        abc     abc  aaa"))
 -- print(unexpandTabs2("        a c     abc"))
 --x = string.gsub("hello world", "%w+", "%1 abc")
 --print(x)
+end
+
+printSeperate()
 
 -- try different with %0 and %1
 --x = string.gsub("hello world from Lua", "(%w+)%s*(%w+)", "%0")
@@ -417,7 +450,7 @@ end
 
 print(escape_v2("\t\2"))
 
--- only do if it is not a control character.
+
 function code (s)
   -- lua: test-10.lua:117: invalid escape sequence near '\('
   -- must use the double \\
