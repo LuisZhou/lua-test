@@ -53,17 +53,7 @@ function udiv (n, d)
   return q
 end
 
-print(udiv(-2, -2))
-print(udiv(-2, -1))
-print(udiv(-2, 1))
-print(string.format('%x', ((-2 >> 1) // 1)<< 1 ) )
-
-
-s = string.pack("iii", 3, -27, 450)
-string.unpack("iii", s)
-
-
-function hex_dump (str)
+local function hex_dump (str)
   local len = string.len( str )
   local dump = ""
   local hex = ""
@@ -89,7 +79,76 @@ function hex_dump (str)
   .. string.rep( "   ", 8 - len % 8 ) .. asc
 end
 
-print(hex_dump(s))
+print(udiv(-2, -2))
+print(udiv(-2, -1))
+print(udiv(-2, 1))
+print(string.format('%x', ((-2 >> 1) // 1)<< 1 ) )
+
+-- i integer, 4byte-size?
+-- z option means a zero-terminated string
+-- b one-byte size integer (native)
+-- h short integer (native)
+-- i interger (native)
+-- l long (native)
+-- j size of lua interger
+-- suffix the i option with a number from one to 16, such as i7
+-- Each integer option has an upper-case version corresponding to an unsigned integer of the same size
+
+do
+  local s = string.pack("iii", 3, -27, 450)
+  local i1, i2, i3, offset = string.unpack("iii", s)
+-- assert(size == 3) -- does has any size info
+  assert(#s == 12)
+  assert(i1 == 3)
+  assert(i2 == -27)
+  assert(i3 == 450)
+  assert(offset == 13)
+end
+
+do
+  -- lua size is 8 byte. (64-bit)
+  local s = string.pack("jjj", 3, -27, 450)
+  assert(#s == 24)
+  --print(hex_dump(s))
+  
+  s = string.pack("i7i7i7", 3, -27, 450)
+  assert(#s == 21)
+  
+  -- print(hex_dump(s))
+end
+
+do
+--x = string.pack("i12", 2^61) -- yes, it is store the interger in 12-byte long space, but the real value is just 61-bit.so it can unpack.
+--print(hex_dump(x))
+--print(string.unpack("i12", x))
+
+-- stdin:1: 12-byte integer does not fit into Lua Integer
+-- x = "aaaaaaaaaaaa"
+-- string.unpack("i12", x)
+
+-- print(hex_dump(s))
+end
+
+do
+  s = "\xFF"
+  local s1 = string.unpack("b", s)  
+  assert(s1 == -1)
+  
+  local s2 = string.unpack("B", s)
+  assert(s2 == 255)
+end
+
+s = "hello\0Lua\0world\0"
+local i = 1
+local counter = 1
+local t = { 'hello', 'Lua', 'world'}
+while i <= #s do
+  local res
+  res, i = string.unpack("z", s, i)
+  --print(i, #s, res)
+  assert(t[counter] == res)
+  counter = counter + 1
+end
 
 -- > s = "\xFF"
 --> string.unpack("b", s)
