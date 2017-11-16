@@ -42,6 +42,13 @@ end
 -- (-1, 1] map to (0, M] ([1, M], its right side is '0')
 -- (x - (-1)) / (1 - (-1)) == (x2 - (0)) / (M - (0))
 
+-- mapping from (-1, 1] to [1, M], while [1, M], the left side limit is 0
+-- (x - (-1)) / (1 - (-1)) == (x2 - 0) / (M-0)
+-- (x - (-1)) / (1 - (-1)) == (x2 - 1) / (M-1)
+-- x + 1 = 2(x2 -1) / (M-1)
+-- x = (2x2 - 2 - M + 1) / (M -1)
+-- x = (2x2 - M - 1) / (M -1)
+
 function plot (r, M, N)
     io.write("P1\n", M, " ", N, "\n") -- header
     for i = 1, N do -- for each line
