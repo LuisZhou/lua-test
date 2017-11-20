@@ -84,8 +84,8 @@ print(udiv(-2, -1))
 print(udiv(-2, 1))
 print(string.format('%x', ((-2 >> 1) // 1)<< 1 ) )
 
+-- interget option
 -- i integer, 4byte-size?
--- z option means a zero-terminated string
 -- b one-byte size integer (native)
 -- h short integer (native)
 -- i interger (native)
@@ -93,6 +93,18 @@ print(string.format('%x', ((-2 >> 1) // 1)<< 1 ) )
 -- j size of lua interger
 -- suffix the i option with a number from one to 16, such as i7
 -- Each integer option has an upper-case version corresponding to an unsigned integer of the same size
+-- Moreover, unsigned integers have an extra option T for size_t. (The size_t type in ISO C is an unsigned integer larger enough to hold the size of any object.)
+
+-- string option
+-- z:   zero-terminated string, when pack, it will add zero after the string. when unpack, it will find the zero as the delimiter.
+-- cn:  fixed-length strings, where n is the number of bytes in the packed string
+-- sn:  strings with explicit length, where n is the size of the unsigned integer used to store the length, the length is in the string. 
+--      (Lua raises an error if the length does not fit into the given size.)
+
+-- Lua raises an error if the length does not fit into the given size. We can also use a pure s as the option;
+-- in that case, the length is stored as a size_t, which is large enough to hold __the length__ of any string.
+-- (In 64-bit machines, size_t usually is an eight-byte unsigned integer, which may be a waste of space
+-- for small strings.)
 
 do
   local s = string.pack("iii", 3, -27, 450)
@@ -150,7 +162,31 @@ while i <= #s do
   counter = counter + 1
 end
 
+-- any size is just 64-bit
+--s = string.pack("TTT", 3, -27, 450)
+--print(hex_dump(s))
+
+-- (string longer than given size)
+--s = string.pack("c1", 'hello world')
+-- 12 is one size longer than the origin.
+s = string.pack("c12", 'hello world')
+print(hex_dump(s))
+
+
+s = string.pack("s1", 'hello world')
+print(hex_dump(s))
+
+-- bug of dump
+s = string.pack("z", 'hello world 123')
+print(hex_dump(s))
+
 -- > s = "\xFF"
 --> string.unpack("b", s)
 --> string.unpack("B", s)
 --> string.unpack("BT", s)  -- stdin:1: bad argument #2 to 'unpack' (data string too short)
+
+-- another kink of dump
+--s = string.pack("s1", "hello")
+--for i = 1, #s do print((string.unpack("B", s, i))) end
+
+
