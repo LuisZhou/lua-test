@@ -1,0 +1,19 @@
+--This format is what we call a self-describing data format, because each piece of data has attached to it a
+--short description of its meaning. Self-describing data are more readable (by humans, at least) than CSV
+--or other compact notations; they are easy to edit by hand, when necessary; and they allow us to make
+--small modifications in the basic format without having to change the data file. For instance, if we add a
+--new field we need only a small change in the reading program, so that it supplies a default value when
+--the field is absent.
+
+Entry{
+author = "Donald E. Knuth",
+title = "Literate Programming",
+publisher = "CSLI",
+year = 1992
+}
+Entry{
+author = "Jon Bentley",
+title = "More Programming Pearls",
+year = 1990,
+publisher = "Addison-Wesley",
+}
