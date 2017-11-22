@@ -101,10 +101,14 @@ print(string.format('%x', ((-2 >> 1) // 1)<< 1 ) )
 -- sn:  strings with explicit length, where n is the size of the unsigned integer used to store the length, the length is in the string. 
 --      (Lua raises an error if the length does not fit into the given size.)
 
--- Lua raises an error if the length does not fit into the given size. We can also use a pure s as the option;
+-- s: Lua raises an error if the length does not fit into the given size. We can also use a pure ___s___ as the option;
 -- in that case, the length is stored as a size_t, which is large enough to hold __the length__ of any string.
 -- (In 64-bit machines, size_t usually is an eight-byte unsigned integer, which may be a waste of space
 -- for small strings.)
+
+-- endian > < =
+-- !n align
+-- x means one byte of padding
 
 do
   local s = string.pack("iii", 3, -27, 450)
@@ -176,9 +180,18 @@ print(hex_dump(s))
 s = string.pack("s1", 'hello world')
 print(hex_dump(s))
 
--- bug of dump
+-- bug of dump, add zero as padding.
 s = string.pack("z", 'hello world 123')
 print(hex_dump(s))
+
+-- bad argument #2 to 'pack' (string longer than given size)
+--s = string.pack("c5", 'hello world 123')
+--print(hex_dump(s))
+
+-- padding zero if size of parameter is larger than the length of string.
+s = string.pack("c12", 'hello world')
+print(hex_dump(s))
+
 
 -- > s = "\xFF"
 --> string.unpack("b", s)
@@ -189,4 +202,51 @@ print(hex_dump(s))
 --s = string.pack("s1", "hello")
 --for i = 1, #s do print((string.unpack("B", s, i))) end
 
+s = string.pack(">i4", 0x12345)
+print(hex_dump(s))
 
+s = string.pack("<i2>i2", 0xf4, 0x18)
+print(hex_dump(s))
+
+s = string.pack("!4i2i2", 0xf4, 0x18)
+print(hex_dump(s))
+
+-- index multi of 4
+s = string.pack("!4i8i8", 0xf4, 0x18)
+print(hex_dump(s))
+
+-- why the size is 23: the last one is not padding zero to size 8, because there is no require
+-- Alignment only works for powers of two: if we set the alignment to four and try to manipulate a three-
+-- byte integer, Lua will raise an error.
+s = string.pack("!4i7i7i7", 0xf4, 0x18, 0x12)
+print(hex_dump(s))
+print(#s)
+
+print('align')
+
+
+for i = 1, 1 do 
+  print(string.unpack("!4i7i7i7", s, i)) 
+end
+
+-- always error result!, don't support single unpack.
+for i = 1, 3 do 
+  print(string.unpack("!4i7", s, i)) 
+end
+
+s = string.pack("!4i8i8i8", 0xf4, 0x18, 0x12)
+print(hex_dump(s))
+
+s = string.pack("i8i8i8", 0xf4, 0x18, 0x12)
+
+print(string.unpack("i8i8i8",s)) -- this ok.
+for i = 1, 3 do print(string.unpack("<i8", s, i)) end -- this not ok.
+
+-- well, support only banlance parameter string of pack and unpack?
+
+--for i = 1, #s do print((string.unpack("B", s, i))) end
+
+s = string.pack("i8i8i8xxx", 0xf4, 0x18, 0x12)
+print(hex_dump(s))
+
+-- binary file
