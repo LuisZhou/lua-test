@@ -9,6 +9,7 @@ f(); assert(i == 2)
 
 load("assert(true)")()   -- () is must.
 
+-- never raise errors
 -- However, if there is any syntax error, load will return nil and the final error message will be something like
 -- nil	[string "print a.abc"]:1: syntax error near 'a'
 -- print(load('print a.abc'))
@@ -52,17 +53,45 @@ assert(g() == 1)
 -- the user enters the function code and then we use load to evaluate it. Note that load expects a chunk,
 -- that is, statements. If we want to evaluate an expression, we can prefix the expression with return, so that
 -- we get a statement that returns the value of the given expression.
-print "enter your expression:"
-local line = io.read()
-local func = assert(load("return " .. line))
-print("the value of your expression is " .. func())
+--print "enter your expression:"
+--local line = io.read()
+--local func = assert(load("return " .. line))
+--print("the value of your expression is " .. func())
 
+--print "enter function to be plotted (with variable 'x'):"
+--local line = io.read()
+--local f = assert(load("return " .. line))
+--for i = 1, 20 do
+--  x = i
+---- global 'x' (to be visible from the chunk)
+--  print(string.rep("*", f()))
+--end 
 
-print "enter function to be plotted (with variable 'x'):"
-local line = io.read()
-local f = assert(load("return " .. line))
+-- f = load(io.lines(filename, "*L"))
+-- f = load(io.lines(filename, 1024))
+
+-- load("a = 1") return the equivalent of the following expression
+-- function (...) a = 1 end
+
+--print "enter function to be plotted (with variable 'x'):"
+-- local line = io.read()
+-- local f = assert(load("local x = ...; return " .. line))
+local f = assert(load("local x = ...; return x"))
 for i = 1, 20 do
-  x = i
--- global 'x' (to be visible from the chunk)
-  print(string.rep("*", f()))
-end 
+  print(string.rep("*", f(i)))
+end
+
+
+-- In a production-quality program that needs to run external code, we should handle any errors reported
+-- when loading a chunk. Moreover, we may want to run the new chunk in a protected environment, to avoid
+-- unpleasant side effects. We will discuss environments in detail in Chapter 22, The Environment.
+
+-- file 'foo.lua'
+--function foo (x)
+-- print(x)
+--end
+
+f = loadfile("foo.lua")
+print(foo) --> nil
+f() -- run the chunk
+foo("ok") --> ok
