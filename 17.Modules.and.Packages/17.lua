@@ -193,3 +193,10 @@ end
 --Names in C cannot contain dots, so a C library for submodule a.b cannot export a function
 --luaopen_a.b. Here, require translates the dot into another character, an underscore. So, a C library
 --named a.b should name its initialization function luaopen_a_b
+
+--As an extra facility, require has one more searcher for loading C submodules. When it cannot find either
+--a Lua file or a C file for a submodule, this last searcher searches again the C path, but this time looking
+--for the package name. For example, if the program requires a submodule a.b.c this searcher will look
+--for a. If it finds a C library for this name, then require looks into this library for an appropriate open
+--function, luaopen_a_b_c in this example. This facility allows a distribution to put several submodules
+--together, each with its own open function, into a single C library.
