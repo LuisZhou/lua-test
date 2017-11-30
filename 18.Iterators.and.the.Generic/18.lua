@@ -27,3 +27,57 @@ while true do
   if element == nil then break end
   print(element)
 end
+
+-- good.
+function allwords ()  
+  local line = io.read() -- current line
+  local pos = 1
+  -- current position in the line
+  return function ()
+    -- iterator function
+    while line do
+      -- repeat while there are lines
+      local w, e = string.match(line, "(%w+)()", pos)
+      if w then
+        -- found a word?
+        pos = e
+        -- next position is after this word
+        return w
+        -- return the word
+      else
+        line = io.read() -- word not found; try next line
+        pos = 1
+        -- restart from first position
+      end
+    end
+    return nil
+    -- no more lines: end of traversal
+  end
+end
+
+--for word in allwords() do
+--  print(word)
+--end
+
+-- __The Semantics of the Generic for__
+
+print(pairs({1,2,3}))
+
+local _, t, _ = pairs({4,5,6})
+
+--for k,v in pairs(t) do
+--  print(k, v) -- t is just  {4,5,6}
+--end  
+
+do
+  local _f, _s, _var = pairs({4,5,6})
+  while true do
+    local var_1, var_2 , var_n = _f(_s, _var)
+    _var = var_1  -- turn to this guy.
+    if _var == nil then break end
+    print('code block ', _var, var_2, var_n)
+  end
+end
+
+--We call the first (or only) variable in the list the control variable. Its value is never nil during the loop,
+--because when it becomes nil the loop ends.
