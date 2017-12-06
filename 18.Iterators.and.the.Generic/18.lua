@@ -81,3 +81,5 @@ end
 
 --We call the first (or only) variable in the list the control variable. Its value is never nil during the loop,
 --because when it becomes nil the loop ends.
+
+-- https://zh.wikipedia.org/wiki/%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E7%AE%97%E6%B3%95
