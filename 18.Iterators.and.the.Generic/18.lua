@@ -70,16 +70,38 @@ local _, t, _ = pairs({4,5,6})
 --end  
 
 do
-  local _f, _s, _var = pairs({4,5,6})
+  local test = {4,5,6}
+  local _f, _s, _var = pairs(test)  -- return ther iterator, invariant state and the control variable
+  
+  --print(test)
+  
+--  for k, v in pairs(_s) do 
+--    print('test', k, v)
+--  end
+  
   while true do
-    local var_1, var_2 , var_n = _f(_s, _var)
+    local var_1, var_2 , var_n = _f(_s, _var) -- the invariant state and the control variable
     _var = var_1  -- turn to this guy.
     if _var == nil then break end
-    print('code block ', _var, var_2, var_n)
+    print('code block ', _s, _var, var_2, var_n)
   end
 end
 
 --We call the first (or only) variable in the list the control variable. Its value is never nil during the loop,
 --because when it becomes nil the loop ends.
 
+
 -- https://zh.wikipedia.org/wiki/%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E7%AE%97%E6%B3%95
+
+-- Stateless Iterators
+
+--a = {"one", "two", "three"}
+--for i, v in ipairs(a) do
+--  print(i, v)
+--end
+
+--a = {"one", "two", "three"}
+--for i, v in pairs(a) do
+--  print(i, v)
+--end
+
