@@ -55,6 +55,11 @@ print(s1 > s1)
 --> false
 print(s1 == s2 * s1) --> true
 
+--So, it is a common practice for libraries to
+--define and use their own fields in metatables
+s1 = Set.new{}
+print(getmetatable(s1)) --> not your business
+setmetatable(s1, {})
 
 
 

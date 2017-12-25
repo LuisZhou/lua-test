@@ -88,4 +88,8 @@ mt.__eq = function (a, b)
   return a <= b and b <= a
 end
 
+--If we set a __metatable field in the metatable, getmetatable will return the value of this field, whereas
+--setmetatable will raise an error:
+--mt.__metatable = "not your business"
+
 return Set
