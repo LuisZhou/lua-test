@@ -1,0 +1,1 @@
+-- lua is basely a simulator technology.

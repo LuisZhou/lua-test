@@ -39,7 +39,7 @@ print(getmetatable(s2))
 local s3 = s1 + s2
 print(Set.tostring(s3)) --> {1, 10, 20, 30, 50}
 
-local s3 = s1 + s2
+s3 = s1 + s2
 print(Set.tostring((s1 + {30, 1})*s1))
 print(Set.tostring(({30, 1} + s1)*s1))
 
@@ -61,6 +61,28 @@ s1 = Set.new{}
 print(getmetatable(s1)) --> not your business
 setmetatable(s1, {})
 
+local track = require"track"
 
+t = {}
+-- an arbitrary table
+t = track.track(t)
+t[2] = "hello" --> *update of element 2 to hello
+print(t[2])
 
+t = track.track({10, 20})
+print(#t) --> 2
+for k, v in pairs(t) do print(k, v) end
+--> *traversing element 1
+--> 1 10
+--> *traversing element 2
+--> 2 20
 
+days = track.readOnly{"Sunday", "Monday", "Tuesday", "Wednesday",
+"Thursday", "Friday", "Saturday"}
+print(days[1])
+--> Sunday
+local status, message = pcall(function() 
+    days[2] = "Noday" 
+  end) 
+
+print(status, message)
