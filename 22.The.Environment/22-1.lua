@@ -60,9 +60,9 @@ end
 --end  
 
 setmetatable(_G, {
-    __newindex = function (_, n)
+    __newindex = function (t, n, v)
       local w = debug.getinfo(2, "S").what
-      if w ~= "main" and w ~= "C" then
+      if w ~= "main" and w ~= "C" then    -- very good.
         error("attempt to write to undeclared variable " .. n, 2)
       end
       --error("attempt to write to undeclared variable " .. n, 2)
@@ -82,9 +82,37 @@ local y = 123
 
 -- try_to_write_global_in_function()
 
-
 if rawget(_G, 'x') == nil then
   print('x is nil')
 -- 'var' is undeclared
 --...
 end
+
+-- It is a good habit to use it when developing Lua code
+local declaredNames = {}
+setmetatable(_G, {
+    __newindex = function (t, n, v)
+      if not declaredNames[n] then
+        local w = debug.getinfo(2, "S").what
+        if w ~= "main" and w ~= "C" then
+          error("attempt to write to undeclared variable "..n, 2)
+        end
+        declaredNames[n] = true
+      end
+      rawset(t, n, v) -- do the actual set
+    end,
+    __index = function (_, n)
+      if not declaredNames[n] then
+        error("attempt to read undeclared variable "..n, 2)
+      else
+        return nil
+      end
+    end,
+  })
+
+x = nil
+print(x) -- without code of line 93, this will error. for x = nil is not enough to declare a variate.
+
+-- strict.lua.
+
+-- Non-Global Environments
