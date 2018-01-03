@@ -6,8 +6,10 @@
 -- Global Variables with Dynamic Names
 -- this code involves the creation and compilation of a new chunk, which is somewhat expensive
 -- value = load("return " .. varname)()
-
+-- is same as the flollowing, but the following more effect.
 -- value = _G[varname]
+
+-- dynamic name.
 
 function getfield (f)
   local v = _G
@@ -22,16 +24,11 @@ function setfield (f, v)
   local t = _G
   -- start with the table of globals
   for w, d in string.gmatch(f, "([%a_][%w_]*)(%.?)") do
-    if d == "." then
-      -- not last name?
-      t[w] = t[w] or {}
-      -- create table if absent
-      t = t[w]
-      -- get the table
-    else
-      -- last name
-      t[w] = v
-      -- do the assignment
+    if d == "." then -- not last name?      
+      t[w] = t[w] or {} -- create table if absent      
+      t = t[w] -- get the table      
+    else  -- last name      
+      t[w] = v -- do the assignment      
     end
   end
 end
@@ -44,43 +41,44 @@ b = 'a'
 assert(_G[b] == a)
 
 setfield("t.x.y", 10)
-print(t.x.y) --> 10
-print(getfield("t.x.y")) --> 10
+assert(t.x.y == 10) --> 10
+assert(getfield("t.x.y") == 10) --> 10
 
 -- Global-Variable Declarations
 
 -- must before the next statement, or this will not ok too.
 -- because this declare a global function.
 function declare (name, initval)
-  rawset(_G, name, initval or false)
+  rawset(_G, name, initval or false) -- bypass the _newindex
 end
-
---function try_to_write_global_in_function()
---  x = 1
---end  
 
 setmetatable(_G, {
     __newindex = function (t, n, v)
       local w = debug.getinfo(2, "S").what
-      if w ~= "main" and w ~= "C" then    -- very good.
+      if w ~= "main" and w ~= "C" then    -- very good. Only can new variable in main function.
         error("attempt to write to undeclared variable " .. n, 2)
       end
       --error("attempt to write to undeclared variable " .. n, 2)
       rawset(t, n, v)
     end,
-    __index = function (_, n)
+    __index = function (_, n) -- you only can bypass this by print(rawget(_G, 'z'))
       error("attempt to read undeclared variable " .. n, 2)
     end,
   })
 
--- print(z)
--- _G['z'] = 1
+-- here will raise error
+
+-- get example
+-- print(z) 
+
+-- set example
+--function try_to_write_global_in_function()
+--  x = 1
+--end 
+--try_to_write_global_in_function()
 
 declare('z', 1)
 z = 123
-local y = 123
-
--- try_to_write_global_in_function()
 
 if rawget(_G, 'x') == nil then
   print('x is nil')
@@ -111,7 +109,7 @@ setmetatable(_G, {
   })
 
 x = nil
-print(x) -- without code of line 93, this will error. for x = nil is not enough to declare a variate.
+print(x) -- without code of above, this will araise error.
 
 -- strict.lua.
 
