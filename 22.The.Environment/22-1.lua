@@ -14,7 +14,7 @@
 function getfield (f)
   local v = _G
   -- start with the table of globals
-  for w in string.gmatch(f, "[%a_][%w_]*") do
+  for w in string.gmatch(f, "([%a_][%w_]*)(%.?)") do
     v = v[w]
   end
   return v
@@ -113,4 +113,23 @@ print(x) -- without code of above, this will araise error.
 
 -- strict.lua.
 
--- Non-Global Environments
+do
+  local foo
+  do
+    local _ENV = _ENV -- this is important, no matter how outside change the _ENV, _ENV is still here for this chunk.
+    function foo () print(X) end -- global
+  end
+  X = 13 -- global.
+  _ENV = nil -- this effect the whole enviroment of the file. If you add local here, every thing is ok.
+  foo()
+  X = 0 -- error
+end
+
+do
+  local print = print
+  function foo (_ENV, a)
+    print(a + b)
+  end
+  foo({b = 14}, 12)
+  foo({b = 10}, 1)
+end
