@@ -61,6 +61,11 @@ s1 = Set.new{}
 print(getmetatable(s1)) --> not your business
 setmetatable(s1, {})
 
+-- Table-Access Metamethods
 
+local Window = require("window")
+
+local w = Window.new{x=10, y=20}
+print(w.width) --> 100
 
 
