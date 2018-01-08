@@ -82,8 +82,38 @@ collectgarbage()
 -- io.read() -- try this.
 
 A = {x = "this is A"}
-B = {f = A}
-setmetatable(B, {__gc = function (o) print(o.f.x) end})
+B = {f = A, x = "this is B"}
+setmetatable(B, {__gc = function (o) print(o.x) end})  -- this is a weak reference.
+setmetatable(A, {__gc = function (o) print(o.x) end})
 A, B = nil
-collectgarbage() --> this is A
-collectgarbage() --> this is A
+collectgarbage() --> this is A -- once is just ok, first A, next B. 
+--collectgarbage() --> this is A
+
+--io.read() -- try this.
+
+
+local t = {__gc = function ()
+    -- your 'atexit' code comes here
+    -- we can do some clean in here.
+    print("finishing Lua program")
+  end}
+setmetatable(t, t)
+-- All we have to do is to create a table with a finalizer and
+-- anchor it somewhere, for instance in a global variable
+_G["*AA*"] = t
+
+-- io.read() -- try this.
+
+do
+  local mt = {__gc = function (o)
+      -- whatever you want to do
+      print("new cycle")
+      -- creates new object for next cycle
+      setmetatable({}, getmetatable(o))
+    end}
+  -- creates first object
+  setmetatable({}, mt)
+end
+collectgarbage()--> new cycle
+collectgarbage()--> new cycle
+collectgarbage()--> new cycle
