@@ -162,5 +162,5 @@ collectgarbage()--> new cycle
 --setmetatable(B, {__gc = function (o) print(o.f.x) end})
 --setmetatable(A, {__gc = function (o) print("I'm A") end})
 --A, B = nil
---collectgarbage() --> A is first released.
+--collectgarbage() --> A is first released.  
 
