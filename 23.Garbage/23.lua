@@ -164,3 +164,20 @@ collectgarbage()--> new cycle
 --A, B = nil
 --collectgarbage() --> A is first released.  
 
+do
+local mt = {__gc = function (o)
+-- whatever you want to do
+print("new cycle")
+-- creates new object for next cycle
+setmetatable({}, getmetatable(o))
+end}
+-- creates first object
+setmetatable({}, mt)
+end
+collectgarbage()
+collectgarbage()
+collectgarbage()
+--> new cycle
+--> new cycle
+--> new cycle
+
