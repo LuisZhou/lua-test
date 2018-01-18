@@ -33,7 +33,7 @@ end
 do
   -- like a number or a Boolean, a string key is not removed from a weak table unless its associated
   -- value is collected.
-  
+
   -- 1
   -- this will not garbaged. Of course, if the value corresponding to a numeric key is collected in a table
   -- with weak values, then the whole entry is removed from the table.
@@ -117,22 +117,15 @@ end
 list = nil -- must: because 3 link to 2, 2 link to 1
 collectgarbage()
 
-
--- io.read() -- try this.
-
-A = {x = "this is A"}
-B = {f = A, x = "this is B"}
-setmetatable(B, {__gc = function (o) print(o.x) end})  -- this is a weak reference.
-setmetatable(A, {__gc = function (o) print(o.x) end})
+local A = {x = "this is A"}
+local B = {f = A}
+setmetatable(B, {__gc = function (o) print(o.f.x) end})
+setmetatable(A, {__gc = function (o) print("I'm A") end})
 A, B = nil
-collectgarbage() --> this is A -- once is just ok, first A, next B. 
---collectgarbage() --> this is A
-
---io.read() -- try this.
-
+collectgarbage() --> A is first released.  
 
 local t = {__gc = function ()
-    -- your 'atexit' code comes here
+    -- your 'at exit' code comes here
     -- we can do some clean in here.
     print("finishing Lua program")
   end}
@@ -141,14 +134,12 @@ setmetatable(t, t)
 -- anchor it somewhere, for instance in a global variable
 _G["*AA*"] = t
 
--- io.read() -- try this.
-
 do
   local mt = {__gc = function (o)
       -- whatever you want to do
       print("new cycle")
       -- creates new object for next cycle
-      setmetatable({}, getmetatable(o))
+      setmetatable({}, getmetatable(o)) -- getmetatable(o) get the mt.
     end}
   -- creates first object
   setmetatable({}, mt)
@@ -156,28 +147,3 @@ end
 collectgarbage()--> new cycle
 collectgarbage()--> new cycle
 collectgarbage()--> new cycle
-
---local A = {x = "this is A"}
---local B = {f = A}
---setmetatable(B, {__gc = function (o) print(o.f.x) end})
---setmetatable(A, {__gc = function (o) print("I'm A") end})
---A, B = nil
---collectgarbage() --> A is first released.  
-
-do
-local mt = {__gc = function (o)
--- whatever you want to do
-print("new cycle")
--- creates new object for next cycle
-setmetatable({}, getmetatable(o))
-end}
--- creates first object
-setmetatable({}, mt)
-end
-collectgarbage()
-collectgarbage()
-collectgarbage()
---> new cycle
---> new cycle
---> new cycle
-
