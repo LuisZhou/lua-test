@@ -147,3 +147,23 @@ end
 collectgarbage()--> new cycle
 collectgarbage()--> new cycle
 collectgarbage()--> new cycle
+
+
+-- The Garbage Collector
+
+-- 5.0
+-- mark-and-sweep garbage collector (GC).
+-- This kind of collector is
+-- sometimes called a “stop-the-world” collector. This means that, from time to time, Lua would stop running
+-- the main program to perform a whole garbage-collection cycle. Each cycle comprises four phases: mark,
+-- cleaning, sweep, and finalization.
+
+-- Any garbage collector trades memory for CPU time. A pause of zero makes Lua start a new collection as soon as the previous one ends. A pause
+-- of 200% waits for memory usage to double before restarting the collector.
+
+-- 1kb * x% ? or 1, 2, 4... model?
+-- The step-multiplier parameter (stepmul) controls how much work the collector does for each kilobyte of
+-- memory allocated. The higher this value the less incremental the collector. A huge value like 100000000%
+-- makes the collector work like a non-incremental collector. The default value is 200%. Values lower than
+-- 100% make the collector so slow that it may never finish a collection.
+
